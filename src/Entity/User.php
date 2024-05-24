@@ -20,11 +20,17 @@ class User
 
     #[ORM\Column(length: 50)]
     #[Groups(["getUsers"])]
+    #[Assert\NotBlank(message: "La référence client est obligatoire, cela peut être le nom de la société, une abréviation, etc.")]
+    #[Assert\Length(min: 2, max: 50, minMessage: "Le nom d'utilisateur doit être de {{limit}} caractères minimum", maxMessage: "Le nom d'utilisateur doit être de {{limit}} caractères maximum")]
+    private ?string $clientReference = null;
+
+    #[ORM\Column(length: 50, unique: true)]
+    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom d'utilisateur est obligatoire")]
     #[Assert\Length(min: 2, max: 50, minMessage: "Le nom d'utilisateur doit être de {{limit}} caractères minimum", maxMessage: "Le nom d'utilisateur doit être de {{limit}} caractères maximum")]
     private ?string $username = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "L'email' est obligatoire")]
     #[Assert\Length(min: 5, max: 255, minMessage: "L'email doit être de {{limit}} caractères minimum", maxMessage: "L'email doit être de {{limit}} caractères maximum")]
@@ -42,7 +48,7 @@ class User
     #[Assert\Length(min: 2, max: 50, minMessage: "Le nom doit être de {{limit}} caractères minimum", maxMessage: "Le nom doit être de {{limit}} caractères maximum")]
     private ?string $lastname = null;
 
-    #[ORM\Column(length: 25, nullable: true)]
+    #[ORM\Column(length: 25, nullable: true, unique: true)]
     #[Groups(["getUsers"])]
     private ?string $phoneNumber = null;
 
@@ -168,6 +174,18 @@ class User
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getClientReference(): ?string
+    {
+        return $this->clientReference;
+    }
+
+    public function setClientReference(string $clientReference): static
+    {
+        $this->clientReference = $clientReference;
 
         return $this;
     }

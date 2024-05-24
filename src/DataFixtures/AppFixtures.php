@@ -6,6 +6,7 @@ use App\Entity\Address;
 use App\Entity\Product;
 use App\Entity\Specification;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -42,14 +43,22 @@ class AppFixtures extends Fixture
             $manager->persist($product);
         }
 
-        for ($i = 0; $i < 20; $i++) {
+        $clientReferences = [];
+
+        for ($i = 0; $i < 3; $i++) {
             $user = new User();
             $user->setEmail($faker->email);
             $user->setFirstname($faker->firstName);
             $user->setLastname($faker->lastName);
             $user->setPhoneNumber($faker->phoneNumber);
             $user->setUsername($faker->userName);
-            $user->setRoles(["ROLE_USER"]);
+            $user->setClientReference($faker->company);
+            $user->setRoles(["ROLE_CLIENT"]);
+
+            $clientReference = $faker->unique()->company;
+            $user->setClientReference($clientReference);
+
+            $clientReferences[] = $clientReference;
 
             $address = new Address();
             $address->setCity($faker->city);
@@ -64,25 +73,28 @@ class AppFixtures extends Fixture
             $manager->persist($user);
         }
 
-        $user = new User();
-        $user->setEmail($faker->email);
-        $user->setFirstname($faker->firstName);
-        $user->setLastname($faker->lastName);
-        $user->setPhoneNumber($faker->phoneNumber);
-        $user->setUsername($faker->userName);
-        $user->setRoles(["ROLE_CLIENT"]);
+        for ($i = 0; $i < 20; $i++) {
+            $user = new User();
+            $user->setEmail($faker->email);
+            $user->setFirstname($faker->firstName);
+            $user->setLastname($faker->lastName);
+            $user->setPhoneNumber($faker->phoneNumber);
+            $user->setUsername($faker->userName);
+            $user->setClientReference($faker->randomElement($clientReferences));
+            $user->setRoles(["ROLE_USER"]);
 
-        $address = new Address();
-        $address->setCity($faker->city);
-        $address->setCountry($faker->country);
-        $address->setStreet($faker->streetAddress);
-        $address->setZipCode($faker->postcode);
-        $address->setUser($user);
+            $address = new Address();
+            $address->setCity($faker->city);
+            $address->setCountry($faker->country);
+            $address->setStreet($faker->streetAddress);
+            $address->setZipCode($faker->postcode);
+            $address->setUser($user);
 
-        $user->addAddress($address);
+            $user->addAddress($address);
 
-        $manager->persist($address);
-        $manager->persist($user);
+            $manager->persist($address);
+            $manager->persist($user);
+        }
 
         $manager->flush();
     }
