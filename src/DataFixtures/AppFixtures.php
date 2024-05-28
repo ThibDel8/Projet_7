@@ -10,9 +10,13 @@ use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(private UserPasswordHasherInterface $passwordHasherInterface)
+    {
+    }
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
@@ -54,34 +58,12 @@ class AppFixtures extends Fixture
             $user->setUsername($faker->userName);
             $user->setClientReference($faker->company);
             $user->setRoles(["ROLE_CLIENT"]);
+            $user->setPassword($this->passwordHasherInterface->hashPassword($user, "password"));
 
             $clientReference = $faker->unique()->company;
             $user->setClientReference($clientReference);
 
             $clientReferences[] = $clientReference;
-
-            $address = new Address();
-            $address->setCity($faker->city);
-            $address->setCountry($faker->country);
-            $address->setStreet($faker->streetAddress);
-            $address->setZipCode($faker->postcode);
-            $address->setUser($user);
-
-            $user->addAddress($address);
-
-            $manager->persist($address);
-            $manager->persist($user);
-        }
-
-        for ($i = 0; $i < 20; $i++) {
-            $user = new User();
-            $user->setEmail($faker->email);
-            $user->setFirstname($faker->firstName);
-            $user->setLastname($faker->lastName);
-            $user->setPhoneNumber($faker->phoneNumber);
-            $user->setUsername($faker->userName);
-            $user->setClientReference($faker->randomElement($clientReferences));
-            $user->setRoles(["ROLE_USER"]);
 
             $address = new Address();
             $address->setCity($faker->city);
