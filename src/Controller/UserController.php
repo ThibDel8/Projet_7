@@ -18,28 +18,27 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 class UserController extends AbstractController
 {
     #[Route('/api/users', name: 'app_users', methods: ['GET'])]
-    public function getAllUsers(UserRepository $repository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
+    public function getAllUsers(UserRepository $repository, SerializerInterface $serializer,  Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 3);
 
         $idCache = "getAllUsers-" . $page . "-" . $limit;
 
-        $jsonProductsList = $cache->get($idCache, function (ItemInterface $item) use ($repository, $page, $limit, $serializer) {
+
+        $json = $cache->get($idCache, function (ItemInterface $item) use ($repository, $page, $limit, $serializer) {
             $item->tag("usersCache");
             $usersList = $repository->findAllWithPagination($page, $limit);
-            return $serializer->serialize($usersList, 'json', ['groups' => 'getUsers']);
+            return $serializer->serialize($usersList, 'json', ['groups' => ['group:user:index']]);
         });
 
-        return new JsonResponse($jsonProductsList, Response::HTTP_OK, [], true);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
     #[Route('/api/users/{id}', name: 'app_user_details', methods: ['GET'])]
-    public function getThisUser(User $user, SerializerInterface $serializer): JsonResponse
+    public function getThisUser(User $user): JsonResponse
     {
-        $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getUsers']);
-
-        return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
+        return $this->json($user);
     }
 
     #[Route('/api/users/{id}', name: 'app_delete_user', methods: ['DELETE'])]
@@ -66,8 +65,6 @@ class UserController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getUsers']);
-
-        return new JsonResponse($jsonUser, Response::HTTP_CREATED, [], true);
+        return new JsonResponse(null, Response::HTTP_CREATED, [], true);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
@@ -13,29 +12,24 @@ class Address
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUsers"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom de la rue est obligatoire")]
     #[Assert\Length(min: 2, max: 255, minMessage: "Le nom de la rue doit être de {{limit}} caractères minimum", maxMessage: "Le nom de la rue doit être de {{limit}} caractères maximum")]
     private ?string $street = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom de la ville est obligatoire")]
     #[Assert\Length(min: 2, max: 100, minMessage: "Le nom de la ville doit être de {{limit}} caractères minimum", maxMessage: "Le nom de la ville doit être de {{limit}} caractères maximum")]
     private ?string $city = null;
 
     #[ORM\Column(length: 10)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le code postal est obligatoire")]
     #[Assert\Length(min: 5, max: 10, minMessage: "Le code postal doit être de {{limit}} caractères minimum", maxMessage: "Le code postal doit être de {{limit}} caractères maximum")]
     private ?string $zipCode = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom du pays est obligatoire")]
     #[Assert\Length(min: 4, max: 100, minMessage: "Le nom du pays doit être de {{limit}} caractères minimum", maxMessage: "Le nom du pays doit être de {{limit}} caractères maximum")]
     private ?string $country = null;

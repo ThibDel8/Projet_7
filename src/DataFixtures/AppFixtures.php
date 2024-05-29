@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Address;
+use App\Entity\Client;
 use App\Entity\Product;
 use App\Entity\Specification;
 use App\Entity\User;
@@ -47,23 +48,28 @@ class AppFixtures extends Fixture
             $manager->persist($product);
         }
 
-        $clientReferences = [];
+        $clients = [];
 
         for ($i = 0; $i < 3; $i++) {
+            $client = new Client();
+            $client->setCompany($faker->unique()->company);
+            $client->setEmail($faker->email);
+            $client->setPassword($this->passwordHasherInterface->hashPassword($client, "password"));
+
+            $clients[] = $client;
+
+            $manager->persist($client);
+        }
+
+        for ($i = 0; $i < 21; $i++) {
             $user = new User();
+            $user->setUsername($faker->userName);
             $user->setEmail($faker->email);
             $user->setFirstname($faker->firstName);
             $user->setLastname($faker->lastName);
             $user->setPhoneNumber($faker->phoneNumber);
-            $user->setUsername($faker->userName);
-            $user->setClientReference($faker->company);
-            $user->setRoles(["ROLE_CLIENT"]);
-            $user->setPassword($this->passwordHasherInterface->hashPassword($user, "password"));
-
-            $clientReference = $faker->unique()->company;
-            $user->setClientReference($clientReference);
-
-            $clientReferences[] = $clientReference;
+            $addCompany = $faker->randomElement($clients);
+            $user->addClient($addCompany);
 
             $address = new Address();
             $address->setCity($faker->city);
