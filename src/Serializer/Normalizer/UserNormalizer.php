@@ -29,6 +29,7 @@ class UserNormalizer implements NormalizerInterface, NormalizerAwareInterface
         $data['address'] = $this->normalizer->normalize($object->getAddresses()->toArray(), $format, ['groups' => ['group:address:read']]);
         $data['_links'] = [
             'show' => $this->urlGenerator->generate('app_user_details', ['id' => $object->getId()]),
+            'delete' => $this->urlGenerator->generate('app_delete_user', ['id' => $object->getId()]),
         ];
 
         return $data;
