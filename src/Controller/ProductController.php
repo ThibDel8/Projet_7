@@ -12,6 +12,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class ProductController extends AbstractController
 {
@@ -31,7 +34,7 @@ class ProductController extends AbstractController
 
         return new JsonResponse($jsonProductsList, Response::HTTP_OK, [], true);
     }
-
+    
     #[Route('/api/products/{id}', name: 'app_product_details', methods: ['GET'])]
     public function getProduct(Product $product, SerializerInterface $serializer): JsonResponse
     {

@@ -2,8 +2,128 @@ nelmio_api_doc:
     documentation:
         info:
             title: BileMo
-            description: This is an awesome app!
-            version: 1.0.0
+            description: Une API qui donne les caractéristiques de smartphones.
+            version: 2.0.0
+        paths:
+            /api/login:
+                post:
+                    tags:
+                        - Token
+                    opreationId: postCredentialsItem
+                    summary: Cette méthode permet d'obtenir le token JWT pour se logger.
+                    requestBody:
+                        description: Crée un nouveau token JWT
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/Credentials'
+                    responses:
+                        '200':
+                            description: Récupère le token JWT
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Token'
+            /api/products:
+                get:
+                    tags:
+                        - Products
+                    summary: Cette méthode permet de récupérer la liste des produits.
+                    parameters:
+                        - name: page
+                          in: query
+                          description: Le numéro de la page à récupérer.
+                          required: false
+                          schema:
+                              type: integer
+                              default: 1
+                        - name: limit
+                          in: query
+                          description: Le nombre maximum de produits à récupérer par page.
+                          required: false
+                          schema:
+                              type: integer
+                              default: 10
+                    responses:
+                        '200':
+                            description: Retourne la liste des smartphones.
+            /api/products/{id}:
+                get:
+                    tags:
+                        - Products
+                    summary: Cette méthode permet de récupérer un produit spécifique.
+                    responses:
+                        '200':
+                            description: Retourne le détail d'un smartphones.
+            /api/users:
+                get:
+                    tags:
+                        - Users
+                    summary: Cette méthode permet de récupérer la liste des utilisateurs.
+                    parameters:
+                        - name: page
+                          in: query
+                          description: Le numéro de la page à récupérer.
+                          required: false
+                          schema:
+                              type: integer
+                              default: 1
+                        - name: limit
+                          in: query
+                          description: Le nombre maximum d'utilisateurs à récupérer par page.
+                          required: false
+                          schema:
+                              type: integer
+                              default: 10
+                    responses:
+                        '200':
+                            description: Retourne la liste des utilisateurs.
+            /api/users/{id}:
+                get:
+                    tags:
+                        - Users
+                    summary: Cette méthode permet de récupérer un utilisateur spécifique.
+                    responses:
+                        '200':
+                            description: Retourne le détail d'un utilisateurs.
+                post:
+                    tags:
+                        - Users
+                    summary: Cette méthode permet d'ajouter un utilisateur.
+                    responses:
+                        '200':
+                            description: Retourne l'ajout d'un utilisateur'.
+                delete:
+                    tags:
+                        - Users
+                    summary: Cette méthode permet de supprimer un utilisateur.
+                    responses:
+                        '200':
+                            description: Retourne la supression d'un utilisateur'.
+        components:
+            schemas:
+                Token:
+                    type: object
+                    properties:
+                        token:
+                            type: string
+                            readOnly: true
+                Credentials:
+                    type: object
+                    properties:
+                        company:
+                            type: string
+                            default: Labadie-Klocko
+                        password:
+                            type: string
+                            default: password
+            securitySchemes:
+                bearerAuth:
+                    type: apiKey
+                    in: header
+                    name: Authorization
+        security:
+            - bearerAuth: []
     areas: # to filter documented areas
         path_patterns:
             - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

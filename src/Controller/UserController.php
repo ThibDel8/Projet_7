@@ -34,13 +34,13 @@ class UserController extends AbstractController
 
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
-
+    
     #[Route('/api/users/{id}', name: 'app_user_details', methods: ['GET'])]
     public function getThisUser(User $user): JsonResponse
     {
         return $this->json($user);
     }
-
+    
     #[Route('/api/users/{id}', name: 'app_delete_user', methods: ['DELETE'])]
     public function deleteUser(User $user, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse
     {
@@ -50,7 +50,7 @@ class UserController extends AbstractController
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
-
+    
     #[Route('/api/users/{id}', name: 'app_create_user', methods: ['POST'])]
     public function createUser(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator, TagAwareCacheInterface $cache): JsonResponse
     {
