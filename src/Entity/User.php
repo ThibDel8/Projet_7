@@ -6,76 +6,49 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUsers"])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
-    #[Groups(["getUsers"])]
-    #[Assert\NotBlank(message: "La référence client est obligatoire, cela peut être le nom de la société, une abréviation, etc.")]
-    #[Assert\Length(min: 2, max: 50, minMessage: "Le nom d'utilisateur doit être de {{limit}} caractères minimum", maxMessage: "Le nom d'utilisateur doit être de {{limit}} caractères maximum")]
-    private ?string $clientReference = null;
-
     #[ORM\Column(length: 50, unique: true)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom d'utilisateur est obligatoire")]
     #[Assert\Length(min: 2, max: 50, minMessage: "Le nom d'utilisateur doit être de {{limit}} caractères minimum", maxMessage: "Le nom d'utilisateur doit être de {{limit}} caractères maximum")]
     private ?string $username = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(["getUsers"])]
-    #[Assert\NotBlank(message: "L'email' est obligatoire")]
+    #[Assert\NotBlank(message: "L'email est obligatoire")]
     #[Assert\Length(min: 5, max: 255, minMessage: "L'email doit être de {{limit}} caractères minimum", maxMessage: "L'email doit être de {{limit}} caractères maximum")]
     private ?string $email = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le prénom est obligatoire")]
     #[Assert\Length(min: 2, max: 50, minMessage: "Le prénom doit être de {{limit}} caractères minimum", maxMessage: "Le prénom doit être de {{limit}} caractères maximum")]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom est obligatoire")]
     #[Assert\Length(min: 2, max: 50, minMessage: "Le nom doit être de {{limit}} caractères minimum", maxMessage: "Le nom doit être de {{limit}} caractères maximum")]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 25, nullable: true, unique: true)]
-    #[Groups(["getUsers"])]
     private ?string $phoneNumber = null;
 
-    /**
-     * @var Collection<int, Address>
-     */
-    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user')]
-    #[Groups(["getUsers"])]
+    #[ORM\ManyToMany(targetEntity: Client::class, mappedBy: 'users')]
+    private Collection $clients;
+
+    #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $addresses;
-
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    private array $roles = [];
-
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column(length: 72)]
-    private ?string $password = null;
 
     public function __construct()
     {
+        $this->clients = new ArrayCollection();
         $this->addresses = new ArrayCollection();
     }
 
@@ -144,14 +117,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getClientReference(): ?string
+    /**
+     * @return Collection<int, Client>
+     */
+    public function getClients(): Collection
     {
-        return $this->clientReference;
+        return $this->clients;
     }
 
-    public function setClientReference(string $clientReference): static
+    public function addClient(Client $client): static
     {
-        $this->clientReference = $clientReference;
+        if (!$this->clients->contains($client)) {
+            $this->clients->add($client);
+            $client->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClient(Client $client): static
+    {
+        if ($this->clients->removeElement($client)) {
+            $client->removeUser($this);
+        }
 
         return $this;
     }
@@ -184,62 +172,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->username;
-    }
-
-    /**
-     * @see UserInterface
-     * @return list<string>
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 }
