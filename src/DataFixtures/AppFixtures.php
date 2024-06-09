@@ -69,7 +69,7 @@ class AppFixtures extends Fixture
             $user->setLastname($faker->lastName);
             $user->setPhoneNumber($faker->phoneNumber);
             $addCompany = $faker->randomElement($clients);
-            $user->addClient($addCompany);
+            $user->setClient($addCompany);
 
             $address = new Address();
             $address->setCity($faker->city);

@@ -78,6 +78,19 @@ nelmio_api_doc:
                     responses:
                         '200':
                             description: Retourne la liste des utilisateurs.
+                post:
+                    tags:
+                        - Users
+                    summary: Cette méthode permet d'ajouter un utilisateur.
+                    requestBody:
+                        description: Crée un nouvel utilisateur
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/Users'
+                    responses:
+                        '200':
+                            description: Retourne l'ajout d'un utilisateur'.
             /api/users/{id}:
                 get:
                     tags:
@@ -86,13 +99,6 @@ nelmio_api_doc:
                     responses:
                         '200':
                             description: Retourne le détail d'un utilisateurs.
-                post:
-                    tags:
-                        - Users
-                    summary: Cette méthode permet d'ajouter un utilisateur.
-                    responses:
-                        '200':
-                            description: Retourne l'ajout d'un utilisateur'.
                 delete:
                     tags:
                         - Users
@@ -113,10 +119,36 @@ nelmio_api_doc:
                     properties:
                         company:
                             type: string
-                            default: Labadie-Klocko
+                            default: Crist-White
                         password:
                             type: string
                             default: password
+                Users:
+                    type: object
+                    properties:
+                        username:
+                            type: string
+                        firstname:
+                            type: string
+                        lastname:
+                            type: string
+                        email:
+                            type: string
+                        phoneNumber:
+                            type: string
+                        address:
+                            $ref: '#/components/schemas/Address'
+                Address:
+                    type: object
+                    properties:
+                        street:
+                            type: string
+                        zipCode:
+                            type: string
+                        city:
+                            type: string
+                        country:
+                            type: string
             securitySchemes:
                 bearerAuth:
                     type: apiKey
