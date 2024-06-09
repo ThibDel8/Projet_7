@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Client;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -33,13 +34,15 @@ class UserRepository extends ServiceEntityRepository //implements PasswordUpgrad
     //    $this->getEntityManager()->flush();
     //}
 
-    public function findAllWithPagination($page, $limit)
+    public function findAllWithPagination($page, $limit, Client $client): array
     {
-        $qb = $this->createQueryBuilder('b')
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.client = :client')
+            ->setParameter('client', $client)
             ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return $qb->getQuery()->getResult();
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

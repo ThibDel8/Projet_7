@@ -40,15 +40,15 @@ class User
     #[ORM\Column(length: 25, nullable: true, unique: true)]
     private ?string $phoneNumber = null;
 
-    #[ORM\ManyToMany(targetEntity: Client::class, mappedBy: 'users')]
-    private Collection $clients;
-
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $addresses;
 
+    #[ORM\ManyToOne(inversedBy: 'user')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Client $client = null;
+
     public function __construct()
     {
-        $this->clients = new ArrayCollection();
         $this->addresses = new ArrayCollection();
     }
 
@@ -118,33 +118,6 @@ class User
     }
 
     /**
-     * @return Collection<int, Client>
-     */
-    public function getClients(): Collection
-    {
-        return $this->clients;
-    }
-
-    public function addClient(Client $client): static
-    {
-        if (!$this->clients->contains($client)) {
-            $this->clients->add($client);
-            $client->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeClient(Client $client): static
-    {
-        if ($this->clients->removeElement($client)) {
-            $client->removeUser($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Address>
      */
     public function getAddresses(): Collection
@@ -170,6 +143,18 @@ class User
                 $address->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(?Client $client): static
+    {
+        $this->client = $client;
 
         return $this;
     }

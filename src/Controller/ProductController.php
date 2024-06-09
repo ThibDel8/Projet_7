@@ -24,6 +24,10 @@ class ProductController extends AbstractController
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 3);
 
+        if($page < 1){
+            return new JsonResponse('Invalid page', Response::HTTP_BAD_REQUEST, [], false);
+        }
+
         $idCache = "getAllProducts-" . $page . "-" . $limit;
 
         $jsonProductsList = $cache->get($idCache, function (ItemInterface $item) use ($repository, $page, $limit, $serializer) {
