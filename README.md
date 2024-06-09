@@ -58,4 +58,4 @@ DELETE /api/users/{id} : Delete a user
 The API uses JWT for authentication.
 
 ## Documentation
-Complete API documentation is available [here](https://127.0.0.1:8000/api/doc).
+Complete API documentation is available [here](https://localhost/api/doc).
