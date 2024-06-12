@@ -119,7 +119,7 @@ nelmio_api_doc:
                     properties:
                         company:
                             type: string
-                            default: Crist-White
+                            default: Gottlieb-McCullough
                         password:
                             type: string
                             default: password

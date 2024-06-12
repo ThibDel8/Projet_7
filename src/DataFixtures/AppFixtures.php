@@ -7,7 +7,6 @@ use App\Entity\Client;
 use App\Entity\Product;
 use App\Entity\Specification;
 use App\Entity\User;
-use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;

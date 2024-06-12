@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -22,10 +21,10 @@ class UserController extends AbstractController
     public function getAllUsers(UserRepository $repository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
         $page = $request->get('page', 1);
-        $limit = $request->get('limit', 3);
+        $limit = $request->get('limit', 10);
 
         if ($page < 1) {
-            return new JsonResponse('Invalid page', Response::HTTP_BAD_REQUEST, [], false);
+            return new JsonResponse(['message' => 'Numéro de page invalide !'], Response::HTTP_BAD_REQUEST, [], false);
         }
 
         $idCache = "getAllUsers-" . $page . "-" . $limit;
@@ -52,7 +51,7 @@ class UserController extends AbstractController
             return $this->json($user, Response::HTTP_OK, [], ['groups' => 'group:user:read']);
         }
 
-        return new JsonResponse(['message' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        return new JsonResponse(['message' => 'Accès refusé, vous n\'êtes pas l\'administrateur de cet utilisateur !'], Response::HTTP_FORBIDDEN);
     }
 
     #[Route('/api/users/{id}', name: 'app_delete_user', methods: ['DELETE'])]
@@ -67,14 +66,14 @@ class UserController extends AbstractController
 
             $cache->invalidateTags(["usersCache"]);
 
-            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+            return new JsonResponse(['message' => 'L\'utilisateur à bien été supprimé !'], Response::HTTP_OK); //Remplacement de HTTP_NO_CONTENT par HTTP_OK sinon le message ne s'affiche pas
         }
 
-        return new JsonResponse(['message' => 'Access Denied'], Response::HTTP_FORBIDDEN);
+        return new JsonResponse(['message' => 'Accès refusé, vous n\'êtes pas l\'administrateur de cet utilisateur !'], Response::HTTP_FORBIDDEN);
     }
 
     #[Route('/api/users', name: 'app_create_user', methods: ['POST'])]
-    public function createUser(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator, TagAwareCacheInterface $cache): JsonResponse
+    public function createUser(Request $request, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse
     {
         $user = new User();
         $user->setClient($this->getUser());
@@ -83,7 +82,7 @@ class UserController extends AbstractController
         $form->submit($request->toArray());
 
         if ($form->isValid() === false) {
-            return $this->json('Bad data form', Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->json(['message' => 'Il y a une erreur, ou une valeur obligatoire oubliée, verifiez les données !'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $entityManager->persist($user);
@@ -91,6 +90,6 @@ class UserController extends AbstractController
 
         $cache->invalidateTags(["usersCache"]);
 
-        return new JsonResponse(['message' => 'User created successfully'], Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'L\'utilisateur à bien été créé !'], Response::HTTP_CREATED);
     }
 }
