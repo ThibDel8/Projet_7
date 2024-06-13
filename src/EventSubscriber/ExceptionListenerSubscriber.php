@@ -14,24 +14,24 @@ class ExceptionListenerSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
 
         if ($exception instanceof HttpException) {
-            $data = [
-                'status' => $exception->getStatusCode(),
-                'message' => $exception->getMessage(),
-            ];
-
-            $event->setResponse(new JsonResponse($data));
+            $statusCode = $exception->getStatusCode();
         } else {
-            $data = [
-                'status' => 500,
-                'message' => $exception->getMessage(),
-            ];
-
-            $event->setResponse(new JsonResponse($data));
+            $statusCode = 500;
         }
+
+        $data = [
+            'status' => $statusCode,
+            'message' => $exception->getMessage(),
+        ];
+
+        $response = new JsonResponse($data);
+        $event->setResponse($response);
     }
 
     public static function getSubscribedEvents(): array
     {
-        return [];
+        return [
+            ExceptionEvent::class => 'onKernelException',
+        ];
     }
 }
