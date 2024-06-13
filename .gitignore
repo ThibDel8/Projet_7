@@ -8,6 +8,7 @@
 /var/
 /vendor/
 /database_data/
+database
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
